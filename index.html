@@ -2,47 +2,153 @@
 <html lang="en">
 
 <head>
-  <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-    crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
   <script src="MakeList.js"></script>
-  <title>Format List</title>
+  <title>Format List Utility</title>
   <script>
-  $(function () {
-    $( "#inputList" ).bind('input propertychange', function() {
-        var str = $('#inputList').val();
-        $("#resultList").val(doFormat(str));
-      });    
-  });
+    $(function () {
+      const toggleDarkMode = () => {
+        if ($('#darkModeToggle').is(':checked')) {
+          $('body').addClass('bg-dark text-white');
+          $('.form-control, .btn').addClass('bg-secondary text-white border-0');
+        } else {
+          $('body').removeClass('bg-dark text-white');
+          $('.form-control, .btn').removeClass('bg-secondary text-white border-0');
+        }
+      };
+  
+      // Initialize event listener for dark mode toggle
+      $('#darkModeToggle').on('change', toggleDarkMode);
+      const resetCopyButtonText = () => {
+        $('#copyButton').text('Copy to Clipboard');
+      };
+
+      const updateResult = () => {
+        const str = $('#inputList').val();
+        const delimiter = $('#delimiterInput').val();
+        const prefix = $('#prefixInput').val();
+        const suffix = $('#suffixInput').val();
+        const formattedResult = doFormat(str, delimiter, prefix, suffix);
+        $("#resultList").val(formattedResult);
+        resetCopyButtonText(); // Reset button text when inputs change
+      };
+
+      // Initialize default values
+      $('#delimiterInput').val(',');
+      $('#prefixInput').val('\'');
+      $('#suffixInput').val('\'');
+      $('#inputList, #delimiterInput, #prefixInput, #suffixInput').on('input', updateResult);
+
+      // Copy-to-Clipboard functionality
+      $('#copyButton').on('click', function () {
+        const result = $('#resultList').val();
+        navigator.clipboard.writeText(result).then(() => {
+          $('#copyButton').text('Copied!');
+        }).catch(err => {
+          console.error('Failed to copy text: ', err);
+        });
+      });
+
+      // Reset functionality
+      $('#resetButton').on('click', function () {
+        $('#delimiterInput').val(',');
+        $('#prefixInput').val('\'');
+        $('#suffixInput').val('\'');
+        $('#inputList').val('');
+        $('#resultList').val('');
+        resetCopyButtonText();
+      });
+
+      // Show help modal
+      $('#helpButton').on('click', function () {
+        $('#helpModal').modal('show');
+      });
+    });
   </script>
 </head>
 
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <label for="inputList">Input List</label>
-        <textarea class="form-control" id="inputList" rows="11"></textarea>
+  <div class="container mt-3">
+    <!-- Dark Mode Toggle -->
+    <div class="row mb-3">
+      <div class="col-md-12 text-right">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="darkModeToggle">
+          <label class="form-check-label" for="darkModeToggle">Dark Mode</label>
+        </div>
       </div>
-      <div class="col-md-6">
+    </div>    
+    <!-- Controls Section -->
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label for="delimiterInput">Delimiter</label>
+        <input type="text" class="form-control" id="delimiterInput" maxlength="50" placeholder="Enter delimiter (default: comma)">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label for="prefixInput">Prefix</label>
+        <input type="text" class="form-control" id="prefixInput" maxlength="50" placeholder="Enter prefix (default: ')">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label for="suffixInput">Suffix</label>
+        <input type="text" class="form-control" id="suffixInput" maxlength="50" placeholder="Enter suffix (default: ')">
+      </div>
+    </div>
+
+    <!-- Input and Result Section -->
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="inputList">Input List</label>
+        <textarea class="form-control" id="inputList" rows="8" placeholder="Enter your list here..."></textarea>
+      </div>
+      <div class="col-md-6 mb-3">
         <label for="resultList">Result List</label>
-        <textarea class="form-control" id="resultList" rows="11"></textarea>
+        <textarea class="form-control" id="resultList" rows="8" readonly></textarea>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <button id="copyButton" class="btn btn-primary btn-block">Copy to Clipboard</button>
+      </div>
+      <div class="col-md-4 mb-3">
+        <button id="resetButton" class="btn btn-secondary btn-block">Reset</button>
+      </div>
+      <div class="col-md-4 mb-3">
+        <button id="helpButton" class="btn btn-info btn-block">Help</button>
       </div>
     </div>
   </div>
 
-  <!-- Optional JavaScript -->
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
+  <!-- Help Modal -->
+  <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="helpModalLabel">How to Use the Format List Utility</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Input List:</strong> Enter your list of items, one per line, in the input field.</p>
+          <p><strong>Delimiter:</strong> Specify the string used to separate items in the result.</p>
+          <p><strong>Prefix & Suffix:</strong> Specify the strings to add before and after each item.</p>
+          <p>The formatted result will appear in the result field. Use the "Copy" button to copy the result or the "Reset" button to clear all fields.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7HibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" 
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
 
 </html>

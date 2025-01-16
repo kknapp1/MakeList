@@ -1,26 +1,14 @@
-
-
-function doFormat(textToFormat) {
-    var charSeperator = ',';
-
-    var retval = textToFormat.trim(); // this is optional
-    if (retval.length == 0)
-        return;
-
-    var sentinel = '%';
-
-    // put our own sentinel character in there to find the individual elements on each line
-    retval = retval.replace(/\n/g, sentinel); 
-    var els = retval.split(sentinel);
-
-    retval = ''; //reset output
-    $.each(els, function(index,value){
-        value = value.trim(); // this is optional
-        retval += '\'' + value + '\'';
-        if(index < els.length-1)
-            retval += charSeperator;
-    })
-
-    return retval;
-}
-
+function doFormat(textToFormat, charSeperator = ',', prefix = '\'', suffix = '\'') {
+    if (!textToFormat) return ''; // Handle null, undefined, or empty strings
+  
+    // Split input into lines, trim each, and filter out empty lines
+    const lines = textToFormat
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+  
+    // Format each line with prefix and suffix, then join with the specified separator
+    const formattedLines = lines.map(line => `${prefix}${line}${suffix}`);
+    return formattedLines.join(charSeperator);
+  }
+  
